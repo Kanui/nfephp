@@ -1232,13 +1232,21 @@ class DanfeNFePHP extends CommonNFePHP implements DocumentoNFePHP
         $texto = 'DATA DA EMISSÃO';
         $aFont = array('font'=>$this->fontePadrao,'size'=>6,'style'=>'');
         $this->__textBox($x,$y,$w,$h,$texto,$aFont,'T','L',1,'');
-        $texto = $this->__ymd2dmy($this->ide->getElementsByTagName("dEmi")->item(0)->nodeValue);
-        $aFont = array('font'=>$this->fontePadrao,'size'=>10,'style'=>'B');
-        if( $this->orientacao == 'P' ){
-            $this->__textBox($x,$y,$w,$h,$texto,$aFont,'B','C',0,'');
-        }else{
-            $this->__textBox($x,$y,$w,$h,$texto,$aFont,'B','C',1,'');
+
+        $dEmi = $this->ide->getElementsByTagName("dEmi")->item(0);
+        if (!$dEmi) {
+            $dEmi = $this->ide->getElementsByTagName("dhEmi")->item(0);
         }
+        if($dEmi) {
+            $texto = $this->__ymd2dmy($dEmi->nodeValue);
+            $aFont = array('font'=>$this->fontePadrao,'size'=>10,'style'=>'B');
+            if( $this->orientacao == 'P' ){
+                $this->__textBox($x,$y,$w,$h,$texto,$aFont,'B','C',0,'');
+            }else{
+                $this->__textBox($x,$y,$w,$h,$texto,$aFont,'B','C',1,'');
+            }
+        }
+
         //ENDEREÇO
         $w = round($maxW*0.47,0);
         $w1 = $w;
@@ -1322,9 +1330,14 @@ class DanfeNFePHP extends CommonNFePHP implements DocumentoNFePHP
         $texto = 'INSCRIÇÃO ESTADUAL';
         $aFont = array('font'=>$this->fontePadrao,'size'=>6,'style'=>'');
         $this->__textBox($x,$y,$w,$h,$texto,$aFont,'T','L',1,'');
-        $texto = $this->dest->getElementsByTagName("IE")->item(0)->nodeValue;
-        $aFont = array('font'=>$this->fontePadrao,'size'=>10,'style'=>'B');
-        $this->__textBox($x,$y,$w,$h,$texto,$aFont,'B','C',0,'');
+
+        $IE = $this->dest->getElementsByTagName("IE")->item(0);
+        if($IE) {
+            $texto = $IE->nodeValue;
+            $aFont = array('font' => $this->fontePadrao, 'size' => 10, 'style' => 'B');
+            $this->__textBox($x, $y, $w, $h, $texto, $aFont, 'B', 'C', 0, '');
+        }
+
         //HORA DA SAÍDA
         $x += $w;
         $w = $wx;
@@ -2481,7 +2494,15 @@ class DanfeNFePHP extends CommonNFePHP implements DocumentoNFePHP
             $texto .= "AO LADO";
         }
         $texto .= ". EMISSÃO: ";
-        $texto .= $this->__ymd2dmy($this->ide->getElementsByTagName("dEmi")->item(0)->nodeValue) ." ";
+
+        $dEmi = $this->ide->getElementsByTagName("dEmi")->item(0);
+        if (!$dEmi) {
+            $dEmi = $this->ide->getElementsByTagName("dhEmi")->item(0);
+        }
+        if($dEmi) {
+            $texto.= $this->__ymd2dmy($dEmi->nodeValue) . " ";
+        }
+
         $texto .= "VALOR TOTAL: R$ ";
         $texto .= number_format($this->ICMSTot->getElementsByTagName("vNF")->item(0)->nodeValue, 2, ",", ".") . " ";
         $texto .= "DESTINATÁRIO: ";
@@ -2597,7 +2618,14 @@ class DanfeNFePHP extends CommonNFePHP implements DocumentoNFePHP
         if( $icmss > 0 ){
             $icmss = 1;
         }
-        $dd  = $this->ide->getElementsByTagName('dEmi')->item(0)->nodeValue;
+
+        $dd = $this->ide->getElementsByTagName("dEmi")->item(0);
+        if (!$dd) {
+            $dd = $this->ide->getElementsByTagName("dhEmi")->item(0);
+        }
+
+        $dd = substr($dd,0,10);
+
         $rpos = strrpos( $dd , '-' );
         $dd  = substr( $dd , $rpos +1 );
         $chave = sprintf( $forma ,$cUF , $this->tpEmis , $CNPJ , $vNF , $vICMS , $icmss , $dd );
