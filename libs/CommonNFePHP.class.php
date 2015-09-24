@@ -166,6 +166,7 @@ class CommonNFePHP
     protected function __ymd2dmy($data = '')
     {
         if (!empty($data)) {
+            $data = substr($data,0,10);
             $needle = "/";
             if (strstr($data, "-")) {
                 $needle = "-";
